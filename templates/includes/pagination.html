@@ -1,0 +1,13 @@
+{% if is_paginated %}
+  <p>
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">prev</a>
+    {% endif %}
+
+    {{ page_obj.number }} / {{ paginator.num_pages }}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">next</a>
+    {% endif %}
+  </p>
+{% endif %}
