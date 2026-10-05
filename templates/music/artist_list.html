@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Artists{% endblock %}
+
+{% block content %}
+  <h1>Artists</h1>
+  <p><a href="{% url 'music:artist-create' %}">+ Add artist</a></p>
+
+  {% include "includes/search_form.html" %}
+
+  <ul>
+    {% for artist in artist_list %}
+      <li>
+        <a href="{% url 'music:artist-detail' artist.pk %}">{{ artist.name }}</a>
+        ({{ artist.country }})
+        <a href="{% url 'music:artist-update' artist.pk %}">edit</a>
+        <a href="{% url 'music:artist-delete' artist.pk %}">delete</a>
+      </li>
+    {% empty %}
+      <li>No artists yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

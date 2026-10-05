@@ -1,10 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}{{ album.name }}{% endblock %}
+
+{% block content %}
+  <h1>{{ album.name }}</h1>
+
+  {% if album.cover %}
+    <img src="{{ album.cover.url }}" alt="{{ album.name }}">
+  {% endif %}
+
+  <p>Genre: {{ album.genre }}</p>
+  <p>Year: {{ album.year }}</p>
+  <p>Duration: {{ album.full_duration }}</p>
+  <p>Price: {{ album.price }}</p>
+  <p>{{ album.description }}</p>
+
+  <h3>Songs</h3>
+  <ul>
+    {% for song in album.song_set.all %}
+      <li>
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        — {{ song.artist.name }}
+      </li>
+    {% empty %}
+      <li>No songs yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Library</h3>
+  <form method="post" action="{% url 'music:toggle-album' album.pk %}">
+    {% csrf_token %}
+    <select name="listener_id" required>
+      {% for listener in listeners %}
+        <option value="{{ listener.pk }}">{{ listener.username }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Add / remove</button>
+  </form>
+
+  <p>
+    <a href="{% url 'music:album-update' album.pk %}">Edit</a>
+    <a href="{% url 'music:album-delete' album.pk %}">Delete</a>
+    <a href="{% url 'music:album-list' %}">Back to list</a>
+  </p>
+{% endblock %}

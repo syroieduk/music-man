@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Listeners{% endblock %}
+
+{% block content %}
+  <h1>Listeners</h1>
+  <p><a href="{% url 'music:listener-create' %}">+ Add listener</a></p>
+
+  {% include "includes/search_form.html" %}
+
+  <ul>
+    {% for listener in listener_list %}
+      <li>
+        <a href="{% url 'music:listener-detail' listener.pk %}">{{ listener.username }}</a>
+        ({{ listener.first_name }} {{ listener.last_name }})
+        <a href="{% url 'music:listener-update' listener.pk %}">edit</a>
+        <a href="{% url 'music:listener-delete' listener.pk %}">delete</a>
+      </li>
+    {% empty %}
+      <li>No listeners yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

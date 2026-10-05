@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Delete album{% endblock %}
+{% block title %}Delete artist{% endblock %}
 
 {% block content %}
-  <h1>Delete album</h1>
+  <h1>Delete artist</h1>
   <p>Are you sure you want to delete «{{ object.name }}»?</p>
+  <p>All songs of this artist will be deleted too.</p>
 
   <form method="post">
     {% csrf_token %}
     <button type="submit">Yes, delete</button>
-    <a href="{% url 'music:album-detail' object.pk %}">Cancel</a>
+    <a href="{% url 'music:artist-detail' object.pk %}">Cancel</a>
   </form>
 {% endblock %}

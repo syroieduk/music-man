@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{% if object %}Edit album{% else %}New album{% endif %}{% endblock %}
+{% block title %}{% if object %}Edit artist{% else %}New artist{% endif %}{% endblock %}
 
 {% block content %}
-  <h1>{% if object %}Edit album{% else %}New album{% endif %}</h1>
+  <h1>{% if object %}Edit artist{% else %}New artist{% endif %}</h1>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save</button>
-    <a href="{% url 'music:album-list' %}">Cancel</a>
+    <a href="{% url 'music:artist-list' %}">Cancel</a>
   </form>
 {% endblock %}

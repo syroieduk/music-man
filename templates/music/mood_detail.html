@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mood.name }}{% endblock %}
+
+{% block content %}
+  <h1>
+    <span style="display:inline-block; width:16px; height:16px; background:{{ mood.color }}"></span>
+    {{ mood.name }}
+  </h1>
+
+  <p>{{ mood.description|default:"No description." }}</p>
+
+  <h3>Songs</h3>
+  <ul>
+    {% for song in mood.songs.all %}
+      <li>
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        — {{ song.artist.name }}, {{ song.duration }}
+      </li>
+    {% empty %}
+      <li>No songs with this mood yet.</li>
+    {% endfor %}
+  </ul>
+
+  <p>
+    <a href="{% url 'music:mood-update' mood.pk %}">Edit</a>
+    <a href="{% url 'music:mood-delete' mood.pk %}">Delete</a>
+    <a href="{% url 'music:mood-list' %}">Back to list</a>
+  </p>
+{% endblock %}

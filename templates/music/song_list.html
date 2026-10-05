@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Songs{% endblock %}
+
+{% block content %}
+  <h1>Songs</h1>
+  <p><a href="{% url 'music:song-create' %}">+ Add song</a></p>
+
+  {% include "includes/search_form.html" %}
+
+  <ul>
+    {% for song in song_list %}
+      <li>
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        — {{ song.artist.name }} ({{ song.album.name }}), {{ song.duration }}
+        <a href="{% url 'music:song-update' song.pk %}">edit</a>
+        <a href="{% url 'music:song-delete' song.pk %}">delete</a>
+
+        <form method="post" action="{% url 'music:toggle-song' song.pk %}" style="display:inline">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <select name="listener_id" required>
+            {% for listener in listeners %}
+              <option value="{{ listener.pk }}">{{ listener.username }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Add / remove</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No songs yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

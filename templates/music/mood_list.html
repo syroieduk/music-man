@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Moods{% endblock %}
+
+{% block content %}
+  <h1>Moods</h1>
+  <p><a href="{% url 'music:mood-create' %}">+ Add mood</a></p>
+
+  {% include "includes/search_form.html" %}
+
+  <ul>
+    {% for mood in mood_list %}
+      <li>
+        <span style="display:inline-block; width:12px; height:12px; background:{{ mood.color }}"></span>
+        <a href="{% url 'music:mood-detail' mood.pk %}">{{ mood.name }}</a>
+        <a href="{% url 'music:mood-update' mood.pk %}">edit</a>
+        <a href="{% url 'music:mood-delete' mood.pk %}">delete</a>
+      </li>
+    {% empty %}
+      <li>No moods yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

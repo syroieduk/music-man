@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+  <h1>Albums</h1>
+  <p><a href="{% url 'music:album-create' %}">+ Add album</a></p>
+
+  {% include "includes/search_form.html" %}
+
+  <ul>
+    {% for album in album_list %}
+      <li>
+        <a href="{% url 'music:album-detail' album.pk %}">{{ album.name }}</a>
+        <a href="{% url 'music:album-update' album.pk %}">edit</a>
+        <a href="{% url 'music:album-delete' album.pk %}">delete</a>
+      </li>
+    {% empty %}
+      <li>No albums yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ artist.name }}{% endblock %}
+
+{% block content %}
+  <h1>{{ artist.name }}</h1>
+
+  {% if artist.photo %}
+    <img src="{{ artist.photo.url }}" alt="{{ artist.name }}">
+  {% endif %}
+
+  <p>Country: {{ artist.country }}</p>
+  <p>Active since: {{ artist.year_of_start|default:"—" }}</p>
+  <p>Amount of money: {{ artist.amount_of_money }}</p>
+
+  <h3>Songs</h3>
+  <ul>
+    {% for song in artist.song_set.all %}
+      <li>
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        — {{ song.album.name }}, {{ song.duration }}
+      </li>
+    {% empty %}
+      <li>No songs yet.</li>
+    {% endfor %}
+  </ul>
+
+  <p>
+    <a href="{% url 'music:artist-update' artist.pk %}">Edit</a>
+    <a href="{% url 'music:artist-delete' artist.pk %}">Delete</a>
+    <a href="{% url 'music:artist-list' %}">Back to list</a>
+  </p>
+{% endblock %}
