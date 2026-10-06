@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -10,6 +12,7 @@ from .forms import (
 )
 from .models import Album, Artist, Listener, Mood, Song
 
+@login_required
 def index(request):
     listener_id = request.GET.get("listener")
     listener = None
@@ -33,7 +36,7 @@ def index(request):
     return render(request, "music/index.html", context=context)
 
 
-class AlbumListView(generic.ListView):
+class AlbumListView(LoginRequiredMixin, generic.ListView):
     model = Album
     paginate_by = 5
 
@@ -52,33 +55,32 @@ class AlbumListView(generic.ListView):
         return queryset
 
 
-class AlbumDetailView(generic.DetailView):
+class AlbumDetailView(LoginRequiredMixin, generic.DetailView):
     model = Album
     queryset = Album.objects.prefetch_related("song_set__artist")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["listeners"] = Listener.objects.all()
         return context
 
 
-class AlbumCreateView(generic.CreateView):
+class AlbumCreateView(LoginRequiredMixin, generic.CreateView):
     model = Album
     form_class = AlbumForm
     success_url = reverse_lazy("music:album-list")
 
 
-class AlbumUpdateView(generic.UpdateView):
+class AlbumUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Album
     form_class = AlbumForm
     success_url = reverse_lazy("music:album-list")
 
 
-class AlbumDeleteView(generic.DeleteView):
+class AlbumDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Album
     success_url = reverse_lazy("music:album-list")
 
-class SongListView(generic.ListView):
+class SongListView(LoginRequiredMixin, generic.ListView):
     model = Song
     paginate_by = 5
     queryset = Song.objects.select_related("album", "artist")
@@ -97,34 +99,33 @@ class SongListView(generic.ListView):
         return self.queryset
 
 
-class SongDetailView(generic.DetailView):
+class SongDetailView(LoginRequiredMixin, generic.DetailView):
     model = Song
     queryset = Song.objects.select_related("album", "artist")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["listeners"] = Listener.objects.all()
         return context
 
 
-class SongCreateView(generic.CreateView):
+class SongCreateView(LoginRequiredMixin, generic.CreateView):
     model = Song
     form_class = SongForm
     success_url = reverse_lazy("music:song-list")
 
 
-class SongUpdateView(generic.UpdateView):
+class SongUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Song
     form_class = SongForm
     success_url = reverse_lazy("music:song-list")
 
 
-class SongDeleteView(generic.DeleteView):
+class SongDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Song
     success_url = reverse_lazy("music:song-list")
 
 
-class ArtistListView(generic.ListView):
+class ArtistListView(LoginRequiredMixin, generic.ListView):
     model = Artist
     paginate_by = 5
 
@@ -143,29 +144,29 @@ class ArtistListView(generic.ListView):
         return queryset
 
 
-class ArtistDetailView(generic.DetailView):
+class ArtistDetailView(LoginRequiredMixin, generic.DetailView):
     model = Artist
     queryset = Artist.objects.prefetch_related("song_set__album")
 
 
-class ArtistCreateView(generic.CreateView):
+class ArtistCreateView(LoginRequiredMixin, generic.CreateView):
     model = Artist
     form_class = ArtistForm
     success_url = reverse_lazy("music:artist-list")
 
 
-class ArtistUpdateView(generic.UpdateView):
+class ArtistUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Artist
     form_class = ArtistForm
     success_url = reverse_lazy("music:artist-list")
 
 
-class ArtistDeleteView(generic.DeleteView):
+class ArtistDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Artist
     success_url = reverse_lazy("music:artist-list")
 
 
-class MoodListView(generic.ListView):
+class MoodListView(LoginRequiredMixin, generic.ListView):
     model = Mood
     paginate_by = 5
 
@@ -184,7 +185,7 @@ class MoodListView(generic.ListView):
         return queryset
 
 
-class MoodDetailView(generic.DetailView):
+class MoodDetailView(LoginRequiredMixin, generic.DetailView):
     model = Mood
     queryset = Mood.objects.prefetch_related("songs__artist")
 
@@ -194,24 +195,24 @@ class MoodDetailView(generic.DetailView):
         return context
 
 
-class MoodCreateView(generic.CreateView):
+class MoodCreateView(LoginRequiredMixin, generic.CreateView):
     model = Mood
     form_class = MoodForm
     success_url = reverse_lazy("music:mood-list")
 
 
-class MoodUpdateView(generic.UpdateView):
+class MoodUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Mood
     form_class = MoodForm
     success_url = reverse_lazy("music:mood-list")
 
 
-class MoodDeleteView(generic.DeleteView):
+class MoodDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Mood
     success_url = reverse_lazy("music:mood-list")
 
 
-class ListenerListView(generic.ListView):
+class ListenerListView(LoginRequiredMixin, generic.ListView):
     model = Listener
     paginate_by = 5
 
@@ -230,7 +231,7 @@ class ListenerListView(generic.ListView):
         return queryset
 
 
-class ListenerDetailView(generic.DetailView):
+class ListenerDetailView(LoginRequiredMixin, generic.DetailView):
     model = Listener
     queryset = Listener.objects.prefetch_related(
         "purchased_albums", "purchased_songs__artist"
@@ -243,12 +244,38 @@ class ListenerCreateView(generic.CreateView):
     success_url = reverse_lazy("music:listener-list")
 
 
-class ListenerUpdateView(generic.UpdateView):
+class ListenerUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Listener
     form_class = ListenerUpdateForm
     success_url = reverse_lazy("music:listener-list")
 
 
-class ListenerDeleteView(generic.DeleteView):
+class ListenerDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Listener
     success_url = reverse_lazy("music:listener-list")
+
+
+@login_required
+@require_POST
+def toggle_album(request, pk):
+    album = get_object_or_404(Album, id=pk)
+    listener = request.user
+
+    if album in listener.purchased_albums.all():
+        listener.purchased_albums.remove(album)
+    else:
+        listener.purchased_albums.add(album)
+    return HttpResponseRedirect(reverse_lazy("music:album-detail", args=[pk]))
+
+
+@login_required
+@require_POST
+def toggle_song(request, pk):
+    song = get_object_or_404(Song, id=pk)
+    listener = request.user
+
+    if song in listener.purchased_songs.all():
+        listener.purchased_songs.remove(song)
+    else:
+        listener.purchased_songs.add(song)
+    return HttpResponseRedirect(reverse_lazy("music:song-detail", args=[pk]))
