@@ -1,11 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import OneToOneField
+from django.utils import timezone
 
 
 class Album(models.Model):
     name = models.CharField(max_length=255)
-    full_duration = models.DurationField(blank=True)
+    full_duration = models.DurationField()
     year = models.DateField(blank=True, null=True)
     description = models.TextField(max_length=800, blank=True)
     cover = models.ImageField(
@@ -19,6 +19,8 @@ class Album(models.Model):
         blank=True,
         null=True,
     )
+    def __str__(self):
+        return self.name
 
 
 class Artist(models.Model):
@@ -31,11 +33,13 @@ class Artist(models.Model):
         null=True,
     )
     amount_of_money = models.DecimalField(max_digits=10, decimal_places=2)
+    def __str__(self):
+        return self.name
 
 
 class Song(models.Model):
     name = models.CharField(max_length=255)
-    duration = models.DurationField(blank=True)
+    duration = models.DurationField()
     album = models.ForeignKey(Album, max_length=255, on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist, max_length=255, on_delete=models.CASCADE)
     genre = models.CharField(
@@ -43,6 +47,8 @@ class Song(models.Model):
         blank=True,
         null=True,
     )
+    def __str__(self):
+        return self.name
 
 
 class Listener(AbstractUser):
@@ -63,12 +69,19 @@ class Listener(AbstractUser):
         blank=True,
         null=True,
     )
-    money = models.DecimalField(max_digits=10, decimal_places=2)
-    date_joined = models.DateTimeField(auto_now_add=True)
-
+    money = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True
+    )
+    date_joined = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 class Mood(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=800, blank=True, null=True)
-    songs = models.ManyToManyField(Song, related_name="moods")
+    songs = models.ManyToManyField(Song, related_name="moods", blank=True)
     color = models.CharField(max_length=7, default="#808080")
+    def __str__(self):
+        return self.name

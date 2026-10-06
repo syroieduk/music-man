@@ -3,20 +3,27 @@
 {% block title %}Albums{% endblock %}
 
 {% block content %}
-  <h1>Albums</h1>
-  <p><a href="{% url 'music:album-create' %}">+ Add album</a></p>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Albums</h1>
+    <a class="btn btn-primary" href="{% url 'music:album-create' %}">+ Add album</a>
+  </div>
 
   {% include "includes/search_form.html" %}
 
-  <ul>
+  <ul class="list-group mb-3">
     {% for album in album_list %}
-      <li>
-        <a href="{% url 'music:album-detail' album.pk %}">{{ album.name }}</a>
-        <a href="{% url 'music:album-update' album.pk %}">edit</a>
-        <a href="{% url 'music:album-delete' album.pk %}">delete</a>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <a href="{% url 'music:album-detail' album.pk %}">{{ album.name }}</a>
+          <span class="badge text-bg-light">{{ album.price }}</span>
+        </div>
+        <div>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'music:album-update' album.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'music:album-delete' album.pk %}">Delete</a>
+        </div>
       </li>
     {% empty %}
-      <li>No albums yet.</li>
+      <li class="list-group-item text-muted">No albums yet.</li>
     {% endfor %}
   </ul>
 

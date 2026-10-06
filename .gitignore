@@ -7,3 +7,5 @@ db.sqlite3
 .idea/
 .env
 "@ | Out-File -Encoding utf8 .gitignore
+media/
+staticfiles/

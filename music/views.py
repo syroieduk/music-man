@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
@@ -6,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.decorators.http import require_POST
+from . import services
 from .forms import (
     AlbumForm, NameSearchForm, SongForm, ArtistForm, MoodForm, ListenerUpdateForm, ListenerCreateForm,
     ListenerSearchForm,
@@ -14,24 +16,17 @@ from .models import Album, Artist, Listener, Mood, Song
 
 @login_required
 def index(request):
-    listener_id = request.GET.get("listener")
-    listener = None
-
-    if listener_id:
-        listener = Listener.objects.filter(pk=listener_id).first()
+    listener = request.user
 
     context = {
-        "listeners": Listener.objects.all(),
         "listener": listener,
         "num_albums": Album.objects.count(),
         "num_songs": Song.objects.count(),
         "num_artists": Artist.objects.count(),
         "num_moods": Mood.objects.count(),
+        "albums_count": listener.purchased_albums.count(),
+        "songs_count": listener.purchased_songs.count(),
     }
-
-    if listener:
-        context["albums_count"] = listener.purchased_albums.count()
-        context["songs_count"] = listener.purchased_songs.count()
 
     return render(request, "music/index.html", context=context)
 
@@ -39,6 +34,7 @@ def index(request):
 class AlbumListView(LoginRequiredMixin, generic.ListView):
     model = Album
     paginate_by = 5
+    ordering = ["name"]
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -58,10 +54,6 @@ class AlbumListView(LoginRequiredMixin, generic.ListView):
 class AlbumDetailView(LoginRequiredMixin, generic.DetailView):
     model = Album
     queryset = Album.objects.prefetch_related("song_set__artist")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 
 class AlbumCreateView(LoginRequiredMixin, generic.CreateView):
@@ -83,7 +75,7 @@ class AlbumDeleteView(LoginRequiredMixin, generic.DeleteView):
 class SongListView(LoginRequiredMixin, generic.ListView):
     model = Song
     paginate_by = 5
-    queryset = Song.objects.select_related("album", "artist")
+    queryset = Song.objects.select_related("album", "artist").order_by("name")
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,10 +94,6 @@ class SongListView(LoginRequiredMixin, generic.ListView):
 class SongDetailView(LoginRequiredMixin, generic.DetailView):
     model = Song
     queryset = Song.objects.select_related("album", "artist")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 
 class SongCreateView(LoginRequiredMixin, generic.CreateView):
@@ -128,6 +116,7 @@ class SongDeleteView(LoginRequiredMixin, generic.DeleteView):
 class ArtistListView(LoginRequiredMixin, generic.ListView):
     model = Artist
     paginate_by = 5
+    ordering = ["name"]
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -169,6 +158,7 @@ class ArtistDeleteView(LoginRequiredMixin, generic.DeleteView):
 class MoodListView(LoginRequiredMixin, generic.ListView):
     model = Mood
     paginate_by = 5
+    ordering = ["name"]
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -188,11 +178,6 @@ class MoodListView(LoginRequiredMixin, generic.ListView):
 class MoodDetailView(LoginRequiredMixin, generic.DetailView):
     model = Mood
     queryset = Mood.objects.prefetch_related("songs__artist")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["other_songs"] = Song.objects.exclude(moods=self.object)
-        return context
 
 
 class MoodCreateView(LoginRequiredMixin, generic.CreateView):
@@ -215,6 +200,7 @@ class MoodDeleteView(LoginRequiredMixin, generic.DeleteView):
 class ListenerListView(LoginRequiredMixin, generic.ListView):
     model = Listener
     paginate_by = 5
+    ordering = ["username"]
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -241,7 +227,7 @@ class ListenerDetailView(LoginRequiredMixin, generic.DetailView):
 class ListenerCreateView(generic.CreateView):
     model = Listener
     form_class = ListenerCreateForm
-    success_url = reverse_lazy("music:listener-list")
+    success_url = reverse_lazy("login")
 
 
 class ListenerUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -257,25 +243,13 @@ class ListenerDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 @login_required
 @require_POST
-def toggle_album(request, pk):
+def buy_album(request, pk):
     album = get_object_or_404(Album, id=pk)
-    listener = request.user
 
-    if album in listener.purchased_albums.all():
-        listener.purchased_albums.remove(album)
+    error = services.buy_album(request.user, album)
+    if error:
+        messages.error(request, error)
     else:
-        listener.purchased_albums.add(album)
+        messages.success(request, f"You bought {album.name}.")
+
     return HttpResponseRedirect(reverse_lazy("music:album-detail", args=[pk]))
-
-
-@login_required
-@require_POST
-def toggle_song(request, pk):
-    song = get_object_or_404(Song, id=pk)
-    listener = request.user
-
-    if song in listener.purchased_songs.all():
-        listener.purchased_songs.remove(song)
-    else:
-        listener.purchased_songs.add(song)
-    return HttpResponseRedirect(reverse_lazy("music:song-detail", args=[pk]))

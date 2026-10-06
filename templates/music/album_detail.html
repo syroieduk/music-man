@@ -3,44 +3,49 @@
 {% block title %}{{ album.name }}{% endblock %}
 
 {% block content %}
-  <h1>{{ album.name }}</h1>
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="h3">{{ album.name }}</h1>
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'music:album-update' album.pk %}">Edit</a>
+      <a class="btn btn-outline-danger" href="{% url 'music:album-delete' album.pk %}">Delete</a>
+    </div>
+  </div>
 
-  {% if album.cover %}
-    <img src="{{ album.cover.url }}" alt="{{ album.name }}">
-  {% endif %}
+  <div class="row">
+    {% if album.cover %}
+      <div class="col-md-4 mb-3"><img src="{{ album.cover.url }}" class="img-fluid rounded" alt="{{ album.name }}"></div>
+    {% endif %}
+    <div class="col">
+      <dl class="row">
+        <dt class="col-sm-3">Genre</dt><dd class="col-sm-9">{{ album.genre|default:"—" }}</dd>
+        <dt class="col-sm-3">Year</dt><dd class="col-sm-9">{{ album.year|default:"—" }}</dd>
+        <dt class="col-sm-3">Duration</dt><dd class="col-sm-9">{{ album.full_duration }}</dd>
+        <dt class="col-sm-3">Price</dt><dd class="col-sm-9">{{ album.price }}</dd>
+      </dl>
+      <p>{{ album.description }}</p>
 
-  <p>Genre: {{ album.genre }}</p>
-  <p>Year: {{ album.year }}</p>
-  <p>Duration: {{ album.full_duration }}</p>
-  <p>Price: {{ album.price }}</p>
-  <p>{{ album.description }}</p>
+      {% if album in user.purchased_albums.all %}
+        <span class="badge text-bg-success">Owned</span>
+      {% else %}
+        <form method="post" action="{% url 'music:buy-album' album.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success">Buy for {{ album.price }}</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
 
-  <h3>Songs</h3>
-  <ul>
+  <h2 class="h5 mt-4">Songs</h2>
+  <ul class="list-group mb-3">
     {% for song in album.song_set.all %}
-      <li>
+      <li class="list-group-item">
         <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
-        — {{ song.artist.name }}
+        <small class="text-muted">— {{ song.artist.name }}</small>
       </li>
     {% empty %}
-      <li>No songs yet.</li>
+      <li class="list-group-item text-muted">No songs yet.</li>
     {% endfor %}
   </ul>
 
-  <h3>Library</h3>
-  <form method="post" action="{% url 'music:toggle-album' album.pk %}">
-    {% csrf_token %}
-    <select name="listener_id" required>
-      {% for listener in listeners %}
-        <option value="{{ listener.pk }}">{{ listener.username }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Add / remove</button>
-  </form>
-
-  <p>
-    <a href="{% url 'music:album-update' album.pk %}">Edit</a>
-    <a href="{% url 'music:album-delete' album.pk %}">Delete</a>
-    <a href="{% url 'music:album-list' %}">Back to list</a>
-  </p>
+  <a href="{% url 'music:album-list' %}">&larr; Back to list</a>
 {% endblock %}

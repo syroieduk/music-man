@@ -3,36 +3,37 @@
 {% block title %}{{ song.name }}{% endblock %}
 
 {% block content %}
-  <h1>{{ song.name }}</h1>
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="h3">{{ song.name }}</h1>
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'music:song-update' song.pk %}">Edit</a>
+      <a class="btn btn-outline-danger" href="{% url 'music:song-delete' song.pk %}">Delete</a>
+    </div>
+  </div>
 
-  <p>Artist: {{ song.artist.name }}</p>
-  <p>Album: <a href="{% url 'music:album-detail' song.album.pk %}">{{ song.album.name }}</a></p>
-  <p>Duration: {{ song.duration }}</p>
-  <p>Genre: {{ song.genre|default:"—" }}</p>
+  <dl class="row">
+    <dt class="col-sm-2">Artist</dt>
+    <dd class="col-sm-10"><a href="{% url 'music:artist-detail' song.artist.pk %}">{{ song.artist.name }}</a></dd>
+    <dt class="col-sm-2">Album</dt>
+    <dd class="col-sm-10"><a href="{% url 'music:album-detail' song.album.pk %}">{{ song.album.name }}</a></dd>
+    <dt class="col-sm-2">Duration</dt><dd class="col-sm-10">{{ song.duration }}</dd>
+    <dt class="col-sm-2">Genre</dt><dd class="col-sm-10">{{ song.genre|default:"—" }}</dd>
+  </dl>
 
-  <h3>Moods</h3>
-  <ul>
-    {% for mood in song.moods.all %}
-      <li>{{ mood.name }}</li>
-    {% empty %}
-      <li>No moods yet.</li>
-    {% endfor %}
-  </ul>
-
-  <h3>Library</h3>
-  <form method="post" action="{% url 'music:toggle-song' song.pk %}">
-    {% csrf_token %}
-    <select name="listener_id" required>
-      {% for listener in listeners %}
-        <option value="{{ listener.pk }}">{{ listener.username }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Add / remove</button>
-  </form>
-
+  <h2 class="h5">Moods</h2>
   <p>
-    <a href="{% url 'music:song-update' song.pk %}">Edit</a>
-    <a href="{% url 'music:song-delete' song.pk %}">Delete</a>
-    <a href="{% url 'music:song-list' %}">Back to list</a>
+    {% for mood in song.moods.all %}
+      <span class="badge text-bg-secondary">{{ mood.name }}</span>
+    {% empty %}
+      <span class="text-muted">No moods yet.</span>
+    {% endfor %}
   </p>
+
+  {% if song in user.purchased_songs.all %}
+    <p><span class="badge text-bg-success">In your library</span></p>
+  {% else %}
+    <p class="text-muted">Buy the album <a href="{% url 'music:album-detail' song.album.pk %}">{{ song.album.name }}</a> to get this song.</p>
+  {% endif %}
+
+  <a href="{% url 'music:song-list' %}">&larr; Back to list</a>
 {% endblock %}

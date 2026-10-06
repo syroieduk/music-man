@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "music",
 ]
 
 MIDDLEWARE = [
@@ -128,5 +129,13 @@ MAILERS = {
 }
 
 STATICFILES_DIRS = [
- BASE_DIR / "static",
+ BASE_DIR / "music/static/",
 ]
+
+AUTH_USER_MODEL = ("music.Listener")
+
+LOGIN_REDIRECT_URL = "music:index"
+
+LOGOUT_REDIRECT_URL = "login"
+
+LOGIN_URL = "login"

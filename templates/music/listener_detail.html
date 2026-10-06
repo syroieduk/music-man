@@ -1,25 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Listeners{% endblock %}
+{% block title %}{{ listener.username }}{% endblock %}
 
 {% block content %}
-  <h1>Listeners</h1>
-  <p><a href="{% url 'music:listener-create' %}">+ Add listener</a></p>
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="h3">{{ listener.username }}</h1>
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'music:listener-update' listener.pk %}">Edit</a>
+      <a class="btn btn-outline-danger" href="{% url 'music:listener-delete' listener.pk %}">Delete</a>
+    </div>
+  </div>
 
-  {% include "includes/search_form.html" %}
+  <div class="row">
+    {% if listener.profile_picture %}
+      <div class="col-md-3 mb-3"><img src="{{ listener.profile_picture.url }}" class="img-fluid rounded" alt="{{ listener.username }}"></div>
+    {% endif %}
+    <div class="col">
+      <dl class="row">
+        <dt class="col-sm-3">Name</dt><dd class="col-sm-9">{{ listener.first_name }} {{ listener.last_name }}</dd>
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ listener.email|default:"—" }}</dd>
+        <dt class="col-sm-3">Money</dt><dd class="col-sm-9">{{ listener.money|default:0 }}</dd>
+        <dt class="col-sm-3">Joined</dt><dd class="col-sm-9">{{ listener.date_joined|date:"Y-m-d" }}</dd>
+      </dl>
+    </div>
+  </div>
 
-  <ul>
-    {% for listener in listener_list %}
-      <li>
-        <a href="{% url 'music:listener-detail' listener.pk %}">{{ listener.username }}</a>
-        ({{ listener.first_name }} {{ listener.last_name }})
-        <a href="{% url 'music:listener-update' listener.pk %}">edit</a>
-        <a href="{% url 'music:listener-delete' listener.pk %}">delete</a>
-      </li>
+  <h2 class="h5 mt-3">Purchased albums</h2>
+  <ul class="list-group mb-3">
+    {% for album in listener.purchased_albums.all %}
+      <li class="list-group-item"><a href="{% url 'music:album-detail' album.pk %}">{{ album.name }}</a></li>
     {% empty %}
-      <li>No listeners yet.</li>
+      <li class="list-group-item text-muted">No albums yet.</li>
     {% endfor %}
   </ul>
 
-  {% include "includes/pagination.html" %}
+  <h2 class="h5">Songs in library</h2>
+  <ul class="list-group mb-3">
+    {% for song in listener.purchased_songs.all %}
+      <li class="list-group-item">
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        <small class="text-muted">— {{ song.artist.name }}</small>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No songs yet.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'music:listener-list' %}">&larr; Back to list</a>
 {% endblock %}

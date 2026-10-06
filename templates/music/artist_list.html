@@ -3,21 +3,27 @@
 {% block title %}Artists{% endblock %}
 
 {% block content %}
-  <h1>Artists</h1>
-  <p><a href="{% url 'music:artist-create' %}">+ Add artist</a></p>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Artists</h1>
+    <a class="btn btn-primary" href="{% url 'music:artist-create' %}">+ Add artist</a>
+  </div>
 
   {% include "includes/search_form.html" %}
 
-  <ul>
+  <ul class="list-group mb-3">
     {% for artist in artist_list %}
-      <li>
-        <a href="{% url 'music:artist-detail' artist.pk %}">{{ artist.name }}</a>
-        ({{ artist.country }})
-        <a href="{% url 'music:artist-update' artist.pk %}">edit</a>
-        <a href="{% url 'music:artist-delete' artist.pk %}">delete</a>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <a href="{% url 'music:artist-detail' artist.pk %}">{{ artist.name }}</a>
+          <small class="text-muted">{{ artist.country }}</small>
+        </div>
+        <div>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'music:artist-update' artist.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'music:artist-delete' artist.pk %}">Delete</a>
+        </div>
       </li>
     {% empty %}
-      <li>No artists yet.</li>
+      <li class="list-group-item text-muted">No artists yet.</li>
     {% endfor %}
   </ul>
 

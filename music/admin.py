@@ -14,7 +14,7 @@ class AlbumAdmin(admin.ModelAdmin):
         "genre"
     ]
     list_filter = ["name", "year", "genre"]
-    list_editable = ["year", "price", "name", "genre", "full_duration"]
+    list_editable = ["year", "price", "genre", "full_duration"]
 
 
 @admin.register(Song)
@@ -27,7 +27,7 @@ class SongAdmin(admin.ModelAdmin):
         "genre",
     ]
     list_filter = ["name", "album", "artist", "genre"]
-    list_editable = ["name", "album", "artist", "genre"]
+    list_editable = ["album", "artist", "genre"]
 
 
 @admin.register(Artist)
@@ -44,7 +44,6 @@ class ArtistAdmin(admin.ModelAdmin):
         "year_of_start"
     ]
     list_editable = [
-        "name",
         "country",
         "year_of_start"
     ]
@@ -53,7 +52,6 @@ class ArtistAdmin(admin.ModelAdmin):
 class MoodAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "songs",
         "color",
     ]
     list_filter = [
@@ -62,8 +60,6 @@ class MoodAdmin(admin.ModelAdmin):
         "color"
     ]
     list_editable = [
-        "name",
-        "songs",
         "color"
     ]
 @admin.register(Listener)
@@ -71,5 +67,5 @@ class ListenerAdmin(UserAdmin):
     search_fields = [
         "first_name",
         "last_name",
-        "date_joined"
+        "email"
     ]
