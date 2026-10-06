@@ -5,10 +5,12 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-start mb-3">
     <h1 class="h3"><span class="badge me-2" style="background-color: {{ mood.color }}">&nbsp;&nbsp;</span>{{ mood.name }}</h1>
+    {% if user.is_staff %}
     <div>
       <a class="btn btn-outline-secondary" href="{% url 'music:mood-update' mood.pk %}">Edit</a>
       <a class="btn btn-outline-danger" href="{% url 'music:mood-delete' mood.pk %}">Delete</a>
     </div>
+    {% endif %}
   </div>
 
   <p>{{ mood.description|default:"No description." }}</p>

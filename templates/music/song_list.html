@@ -5,7 +5,9 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Songs</h1>
+    {% if user.is_staff %}
     <a class="btn btn-primary" href="{% url 'music:song-create' %}">+ Add song</a>
+    {% endif %}
   </div>
 
   {% include "includes/search_form.html" %}
@@ -17,10 +19,12 @@
           <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
           <small class="text-muted">{{ song.artist.name }} · {{ song.album.name }} · {{ song.duration }}</small>
         </div>
+        {% if user.is_staff %}
         <div>
           <a class="btn btn-sm btn-outline-secondary" href="{% url 'music:song-update' song.pk %}">Edit</a>
           <a class="btn btn-sm btn-outline-danger" href="{% url 'music:song-delete' song.pk %}">Delete</a>
         </div>
+        {% endif %}
       </li>
     {% empty %}
       <li class="list-group-item text-muted">No songs yet.</li>

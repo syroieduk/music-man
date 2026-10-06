@@ -64,8 +64,9 @@ class MoodAdmin(admin.ModelAdmin):
     ]
 @admin.register(Listener)
 class ListenerAdmin(UserAdmin):
-    search_fields = [
-        "first_name",
-        "last_name",
-        "email"
-    ]
+    fieldsets = UserAdmin.fieldsets + (
+        ("Music", {"fields": ("money", "profile_picture",
+                              "purchased_albums", "purchased_songs")}),
+    )
+    list_display = UserAdmin.list_display + ("money",)
+    search_fields = ["first_name", "last_name", "email"]
