@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Listeners{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Listeners</h1>
+  </div>
+
+  {% include "includes/search_form.html" %}
+
+  <ul class="list-group mb-3">
+    {% for listener in listener_list %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <a href="{% url 'music:listener-detail' listener.pk %}">{{ listener.username }}</a>
+          <small class="text-muted">{{ listener.first_name }} {{ listener.last_name }}</small>
+        </div>
+        {% if user.is_staff %}
+        <div>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'music:listener-update' listener.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'music:listener-delete' listener.pk %}">Delete</a>
+        </div>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No listeners yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

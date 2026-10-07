@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Delete listener{% endblock %}
+
+{% block content %}
+  <h1 class="h3 mb-3">Delete listener</h1>
+  <p>Are you sure you want to delete «{{ object.username }}»?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a class="btn btn-link" href="{% url 'music:listener-detail' object.pk %}">Cancel</a>
+  </form>
+{% endblock %}

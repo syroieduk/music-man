@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mood.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="h3"><span class="badge me-2" style="background-color: {{ mood.color }}">&nbsp;&nbsp;</span>{{ mood.name }}</h1>
+    {% if user.is_staff %}
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'music:mood-update' mood.pk %}">Edit</a>
+      <a class="btn btn-outline-danger" href="{% url 'music:mood-delete' mood.pk %}">Delete</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <p>{{ mood.description|default:"No description." }}</p>
+
+  <h2 class="h5">Songs</h2>
+  <ul class="list-group mb-3">
+    {% for song in mood.songs.all %}
+      <li class="list-group-item">
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        <small class="text-muted">— {{ song.artist.name }}, {{ song.duration }}</small>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No songs with this mood yet.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'music:mood-list' %}">&larr; Back to list</a>
+{% endblock %}

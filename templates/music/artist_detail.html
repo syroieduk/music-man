@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ artist.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="h3">{{ artist.name }}</h1>
+    {% if user.is_staff %}
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'music:artist-update' artist.pk %}">Edit</a>
+      <a class="btn btn-outline-danger" href="{% url 'music:artist-delete' artist.pk %}">Delete</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="row">
+    {% if artist.photo %}
+      <div class="col-md-4 mb-3"><img src="{{ artist.photo.url }}" class="img-fluid rounded" alt="{{ artist.name }}"></div>
+    {% endif %}
+    <div class="col">
+      <dl class="row">
+        <dt class="col-sm-3">Country</dt><dd class="col-sm-9">{{ artist.country }}</dd>
+        <dt class="col-sm-3">Active since</dt><dd class="col-sm-9">{{ artist.year_of_start|default:"—" }}</dd>
+        <dt class="col-sm-3">Money</dt><dd class="col-sm-9">{{ artist.amount_of_money }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <h2 class="h5 mt-4">Songs</h2>
+  <ul class="list-group mb-3">
+    {% for song in artist.song_set.all %}
+      <li class="list-group-item">
+        <a href="{% url 'music:song-detail' song.pk %}">{{ song.name }}</a>
+        <small class="text-muted">— {{ song.album.name }}, {{ song.duration }}</small>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No songs yet.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'music:artist-list' %}">&larr; Back to list</a>
+{% endblock %}
